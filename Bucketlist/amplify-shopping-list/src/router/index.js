@@ -1,11 +1,22 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
+import Auth from "../views/Auth.vue"; 
+import { meta } from "@babel/eslint-parser";
+
 
 const routes = [
   {
     path: "/",
+    name: "Auth",
+    component: HomeView,
+  },
+  {
+    path: "/home",
     name: "home",
     component: HomeView,
+    meta: {
+      requiresAuth: true,
+    }
   },
   {
     path: "/about",
@@ -21,6 +32,17 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
+});
+
+router.beforeEach(async (to, from, next) => {
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    try {
+      await Vue.prototype.$Amplify.Auth.currentAuthenticatedUser();
+      next();
+    } catch (error) {
+      next({ path: "/" });
+    }
+  }
 });
 
 export default router;
