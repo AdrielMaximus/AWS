@@ -7,7 +7,7 @@ import { AmplifyAuthenticator } from '@aws-amplify/ui-vue';
 import { Auth } from 'aws-amplify';
 
 export default {
-  mounted(){
+  async mounted(){
     AmplifyEventBus.$on('authState', eventinfo => {
       if (eventinfo === 'signedIn') {
         this.$router.push({name: 'Home'});
@@ -15,9 +15,11 @@ export default {
         this.$router.push({name: 'Auth'});
       }
     });
-    if (Auth.currentAuthenticatedUser()) {
-      this.$router.push({name: 'Home'});
-    } else {
+
+    try {
+      await Auth.currentAuthenticatedUser();
+this.$router.push({name: 'Home'});
+    } catch (error) {
       this.$router.push({name: 'Auth'});
     }
   }
